@@ -1,77 +1,114 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
-          <p>
-            For more information on Vuetify, check out the <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation
-            </a>.
-          </p>
-          <p>
-            If you have questions, please join the official <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord
-            </a>.
-          </p>
-          <p>
-            Find a bug? Report it on the github <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board
-            </a>.
-          </p>
-          <p>Thank you for developing with Vuetify and I look forward to bringing more exciting features in the future.</p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3">
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br>
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/inspire"
-          >
-            Continue
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+  <section class="container">
+    <h1>Todoリスト</h1>
+    <div class="addArea">
+      <input id="addName" type="text" name="addName" v-model="content" placeholder="タスクを入力して下さい">
+      <button @click="insert" id="addButton" class="button button--green">
+        追加
+      </button>
+    </div>
+    <div class="Filter">
+      <button class="button button--gray is-active" v-bind:class="{'is-active': (!find_flg)}" @click="flag_reset">
+        全て
+      </button>
+      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '作業前')}" @click="find('作業前')">
+        作業前
+      </button>
+      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '作業中')}" @click="find('作業中')">
+        作業中
+      </button>
+      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '完了')}" @click="find('完了')">
+        完了
+      </button>
+    </div>
+    <table class="Lists">
+      <thead>
+        <tr>
+          <th>タスク</th>
+          <th>登録日時</th>
+          <th>状態</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in display_todos" :key="index">
+          <td>{{ item.content }}</td>
+          <td>{{ item.created }}</td>
+          <td>
+            <button class="button"
+              v-bind:class="{
+                'button--yet': item.state == '作業前',
+                'button--progress': item.state == '作業中',
+                'button--done': item.state == '完了',
+              }"
+              @click="changeState(item)
+            ">
+              {{ item.state }}
+            </button>
+          </td>
+          <td>
+            <button class="button button--red" @click="remove(item)">
+              削除
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 </template>
+<script>
+
+import { mapState } from 'vuex';
+
+export default {
+  data: function() {
+    return {
+      content: '',
+      find_state: '',
+      find_flg: false
+    }
+  },
+  computed: {
+    ...mapState(['todos']),
+    display_todos: function () {
+      if (this.find_flg) {
+        let arr = []
+        let data = this.todos
+        data.forEach(element => {
+          if (element.state == this.find_state) {
+            arr.push(element)
+          }
+        });
+        return arr
+      } else {
+        return this.todos
+      }
+    }
+  },
+  methods: {
+    insert: function() {
+      if (this.content != '') {
+        this.$store.commit('insert', {content: this.content});
+        this.content = '';
+      }
+    },
+    changeState: function(todo) {
+      this.$store.commit('changeState', todo)
+    },
+    remove: function(todo) {
+      this.$store.commit('remove', todo)
+    },
+    find: function(findState) {
+      this.find_state = findState
+      this.find_flg = true
+    },
+    flag_reset: function() {
+      this.find_flg = false
+    }
+  }
+}
+
+</script>
+<style scoped>
+
+</style>
