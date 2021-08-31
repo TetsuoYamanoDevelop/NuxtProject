@@ -2,22 +2,44 @@
   <section class="container">
     <h1>Todoリスト</h1>
     <div class="addArea">
-      <input id="addName" type="text" name="addName" v-model="content" placeholder="タスクを入力して下さい">
-      <button @click="insert" id="addButton" class="button button--green">
+      <input
+        id="addName"
+        v-model="content"
+        type="text"
+        name="addName"
+        placeholder="タスクを入力して下さい"
+      >
+      <button id="addButton" class="button button--green" @click="insert">
         追加
       </button>
     </div>
     <div class="Filter">
-      <button class="button button--gray is-active" v-bind:class="{'is-active': (!find_flg)}" @click="flag_reset">
+      <button
+        class="button button--gray is-active"
+        :v-bind:class="{ 'is-active': !find_flg }"
+        @click="flag_reset"
+      >
         全て
       </button>
-      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '作業前')}" @click="find('作業前')">
+      <button
+        class="button button--gray is-active"
+        :v-bind:class="{ 'is-active': find_flg && find_state == '作業前' }"
+        @click="find('作業前')"
+      >
         作業前
       </button>
-      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '作業中')}" @click="find('作業中')">
+      <button
+        class="button button--gray is-active"
+        :v-bind:class="{ 'is-active': find_flg && find_state == '作業中' }"
+        @click="find('作業中')"
+      >
         作業中
       </button>
-      <button class="button button--gray is-active" v-bind:class="{'is-active': find_flg && (find_state == '完了')}" @click="find('完了')">
+      <button
+        class="button button--gray is-active"
+        :v-bind:class="{ 'is-active': find_flg && find_state == '完了' }"
+        @click="find('完了')"
+      >
         完了
       </button>
     </div>
@@ -35,14 +57,15 @@
           <td>{{ item.content }}</td>
           <td>{{ item.created }}</td>
           <td>
-            <button class="button"
-              v-bind:class="{
+            <button
+              class="button"
+              :v-bind:class="{
                 'button--yet': item.state == '作業前',
                 'button--progress': item.state == '作業中',
                 'button--done': item.state == '完了',
               }"
-              @click="changeState(item)
-            ">
+              @click="changeState(item)"
+            >
               {{ item.state }}
             </button>
           </td>
@@ -57,11 +80,10 @@
   </section>
 </template>
 <script>
-
-import { mapState } from 'vuex';
+import { mapState } from 'vuex'
 
 export default {
-  data: function() {
+  data: () => {
     return {
       content: '',
       find_state: '',
@@ -70,15 +92,15 @@ export default {
   },
   computed: {
     ...mapState(['todos']),
-    display_todos: function () {
+    display_todos: () => {
       if (this.find_flg) {
-        let arr = []
-        let data = this.todos
-        data.forEach(element => {
-          if (element.state == this.find_state) {
+        const arr = []
+        const data = this.todos
+        data.forEach((element) => {
+          if (element.state === this.find_state) {
             arr.push(element)
           }
-        });
+        })
         return arr
       } else {
         return this.todos
@@ -86,29 +108,27 @@ export default {
     }
   },
   methods: {
-    insert: function() {
-      if (this.content != '') {
-        this.$store.commit('insert', {content: this.content});
-        this.content = '';
+    insert: () => {
+      if (this.content !== '') {
+        this.$store.commit('insert', { content: this.content })
+        this.content = ''
       }
     },
-    changeState: function(todo) {
+    changeState: (todo) => {
       this.$store.commit('changeState', todo)
     },
-    remove: function(todo) {
+    remove: (todo) => {
       this.$store.commit('remove', todo)
     },
-    find: function(findState) {
+    find: (findState) => {
       this.find_state = findState
       this.find_flg = true
     },
-    flag_reset: function() {
+    flag_reset: () => {
       this.find_flg = false
     }
   }
 }
-
 </script>
 <style scoped>
-
 </style>
